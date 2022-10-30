@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=naiveproxy
 PKG_VERSION:=106.0.5249.91-2
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/klzgrad/naiveproxy/tar.gz/v$(PKG_VERSION)?
@@ -19,7 +19,6 @@ PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 ifneq ($(wildcard $(TOPDIR)/feeds/packages/devel/ninja/ninja.mk),)
 PKG_BUILD_DEPENDS+= ninja/host
 endif
-NINJA ?= ninja
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 
@@ -123,16 +122,16 @@ define Build/Configure
 		. ../init_env.sh "$(ARCH)" $(CPU_TYPE) $(CPU_SUBTYPE) "$(TOOLCHAIN_DIR)" ; \
 		export naive_flags+=" $$$${naive_ccache_flags}" ; \
 		mkdir -p "out" ; \
-		./gn/out/gn gen "out/Release" --args="$$$${naive_flags}" --script-executable="$(PYTHON)" ; \
+		./gn/out/gn gen "out/Release" --args="$$$${naive_flags}" --script-executable="python3" ; \
 		popd ; \
 	)
 endef
 
 define Build/Compile
 	$(if $(CONFIG_PACKAGE_naiveproxy), \
-		+$(NINJA) -C "$(PKG_BUILD_DIR)/src/out/Release" naive)
+		ninja -C "$(PKG_BUILD_DIR)/src/out/Release" naive)
 	$(if $(CONFIG_PACKAGE_libcronet), \
-		+$(NINJA) -C "$(PKG_BUILD_DIR)/src/out/Release" cronet)
+		ninja -C "$(PKG_BUILD_DIR)/src/out/Release" cronet)
 endef
 
 define Build/InstallDev
@@ -142,7 +141,7 @@ define Build/InstallDev
 		$(PKG_BUILD_DIR)/src/components/cronet/native/generated/cronet.idl_c.h \
 		$(PKG_BUILD_DIR)/src/components/cronet/native/include/cronet_c.h \
 		$(PKG_BUILD_DIR)/src/components/cronet/native/include/cronet_export.h \
-		$(1)/usr/include//libcronet/
+		$(1)/usr/include/libcronet/
 endef
 
 define Package/naiveproxy/install
